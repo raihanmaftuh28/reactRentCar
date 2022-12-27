@@ -6,7 +6,7 @@ export default function Filter() {
   const [nameState, setNameState] = useState();
   const [priceState, setPriceState] = useState();
   const [carState, setCarState] = useState([]);
-  const [filteredState, setFilteredState] = useState([]);
+  const [changeState, setChangeState] = useState(false);
 
   const nameEventHandler = (event) => {
     const value = event.target.value;
@@ -15,45 +15,81 @@ export default function Filter() {
 
   const priceEventHandler = (event) => {
     const value = event.target.value;
+    console.log("angka", value);
     setPriceState(value);
   };
 
-  const onFilter = (event) => {
+  // const filterEvenResults = () =>
+  //   setItems((items) => items.filter((x) => x % 2));
+
+  const onFilter = () => {
     // event.preventDefault();
-    setFilteredState([]);
-    console.log("awal", filteredState);
-    carState.map((car) => {
-      if (nameState && priceState) {
-        console.log("first");
-        if (nameState === car.name && car.price < priceState) {
-          setFilteredState([...filteredState, car]);
+
+    setCarState((carState) =>
+      carState.filter((x) => {
+        console.log(typeof x.price);
+        console.log(typeof priceState);
+        if (nameState && priceState) {
+          if (
+            nameState === x.name &&
+            parseInt(x.price) < parseInt(priceState)
+          ) {
+            console.log(carState);
+            return x;
+          }
+        } else if (nameState && !priceState) {
+          console.log(carState);
+          if (x.name === nameState) {
+            return x;
+          }
+        } else if (priceState && !nameState) {
+          if (parseInt(x.price) < parseInt(priceState)) {
+            console.log(carState);
+            return x;
+          }
+        } else {
+          console.log(carState);
+          return x;
         }
-      } else if (nameState && !priceState) {
-        if (car.name === nameState) {
-          console.log("second");
-          setFilteredState([...filteredState, car]);
-          console.log("filteredState ", filteredState);
-        }
-      } else if (priceState && !nameState) {
-        if (car.price < priceState) {
-          console.log("third");
-          setFilteredState([...filteredState, car]);
-        }
-      } else {
-        console.log("fourth");
-        setFilteredState([...filteredState, car]);
-      }
-    });
+      })
+    );
   };
+
+  // const onFilter = () => {
+  //   // event.preventDefault();
+  //   setFilteredState((filteredState) => []);
+  //   console.log("awal", filteredState);
+  //   carState.map((car) => {
+  //     if (nameState && priceState) {
+  //       console.log("first");
+  //       if (nameState === car.name && car.price < priceState) {
+  //         setFilteredState([...filteredState, car]);
+  //       }
+  //     } else if (nameState && !priceState) {
+  //       if (car.name === nameState) {
+  //         console.log("second");
+  //         setFilteredState([...filteredState, car]);
+  //         console.log("filteredState ", filteredState);
+  //       }
+  //     } else if (priceState && !nameState) {
+  //       if (car.price < priceState) {
+  //         console.log("third");
+  //         setFilteredState([...filteredState, car]);
+  //       }
+  //     } else {
+  //       console.log("fourth");
+  //       setFilteredState([...filteredState, car]);
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     const getCarList = async () => {
       const carList = await axios.get("http://localhost:1000/car-list");
       setCarState(carList.data.data.getCar);
     };
-
     getCarList();
-  }, []);
+  }, [nameState, priceState]);
 
   return (
     <div className="-translate-y-10 bg-white ">
@@ -93,8 +129,8 @@ export default function Filter() {
           </div>
         </div>
       </div>
-      <div className="  mr-[90px] ml-[90px] flex flex-wrap gap-8  justify-center ">
-        {filteredState.map((car) => {
+      <div className="  mr-[90px] ml-[90px] mt-20 flex flex-wrap gap-8  justify-center ">
+        {carState.map((car) => {
           return (
             <div className="border rounded-lg w-72 p-4 space-y-2">
               <img
